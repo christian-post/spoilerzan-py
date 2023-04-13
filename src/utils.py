@@ -9,6 +9,9 @@ def load_sets(config: dict) -> list[str]:
     try:
         with open(config["setsfile"], "r") as file:
             return json.load(file)
+    except json.JSONDecodeError:
+        print(f"The file {config['setsfile']} appears corrupted. Loading empty set list.")
+        return []
     except FileNotFoundError as err:
         print(err)
         return []
@@ -26,7 +29,7 @@ def load_card_counts(config: dict) -> dict[str: dict[str: int]]:
         return {}
 
 
-def get_set(setcode: str, config: dict) -> Any:
+def get_set_data(setcode: str, config: dict) -> dict:
     """
     Gets the set data for the given set code from the scryfall API
     """
@@ -38,6 +41,7 @@ def get_set(setcode: str, config: dict) -> Any:
         return json.loads(res.text)
     else:
         print(f"The set \"{setcode}\" could not be accessed. Error code {res.status_code}.\n")
+        return {}
 
 
 def get_spoiled_cards(set_data: dict, config: dict) -> list:
@@ -98,7 +102,7 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
 
     new_cards = []
     for set_ in sets:
-        set_data = get_set(set_)
+        set_data = get_set_data(set_, config)
 
         if not set_data:
             continue
@@ -110,7 +114,7 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
             ).get("card_count", 0)
         
         if config["verbose"]:
-            print(f"Set {set_}, new card count: {new_count}, old card count: {old_count}.")
+            print(f"Set \"{set_data.get('name')} ({set_})\", new card count: {new_count}, old card count: {old_count}.\n")
 
         # new cards have been spoiled since last time
         if new_count > old_count:
@@ -132,9 +136,6 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
             file.write(json.dumps(card_counts))
 
     return new_cards
-
-
-
 
 
 def format_card_data_for_post(card_data: dict) -> str:
@@ -169,26 +170,45 @@ def format_card_data_for_post(card_data: dict) -> str:
     return post_string
 
 
+def format_setnames(*setnames: list[str]) -> str:
+    uppercase_names = list(map(lambda x: f'\"{x.upper()}\"', setnames))
+    return ', '.join(uppercase_names)
+
+
+async def post_cards(cardlist: list[dict], channel) -> None:
+    for i, card in enumerate(cardlist):
+        time.sleep(0.2)
+        print(i, card.get("name"))
+        await channel.send(format_card_data_for_post(card))
+
 
 
 if __name__ == "__main__":
     # TESTS
 
     # from dotenv import load_dotenv
-    import yaml
+    # import sys
+    # import os
+    # sys.path.append(os.getcwd())
 
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
+    # import yaml
 
-    # set that doesn't exist
-    get_set("FOO", config)
+    # with open('config.yaml', 'r') as file:
+    #     config = yaml.safe_load(file)
 
-    # set that exists
-    mom_data = get_set("MOM", config)
-    print("Data for MOM:", mom_data)
+    # # set that doesn't exist
+    # get_set_data("FOO", config)
 
-    mom_cards = get_spoiled_cards(mom_data, config)
-    print(format_card_data_for_post(mom_cards[0]))
-    print(format_card_data_for_post(mom_cards[1]))
-    print(format_card_data_for_post(mom_cards[2]))
-    print(format_card_data_for_post(mom_cards[3]))
+    # # set that exists
+    # mom_data = get_set_data("MOM", config)
+    # print("Data for MOM:", mom_data)
+
+    # mom_cards = get_spoiled_cards(mom_data, config)
+    # print(format_card_data_for_post(mom_cards[0]))
+    # print(format_card_data_for_post(mom_cards[1]))
+    # print(format_card_data_for_post(mom_cards[2]))
+    # print(format_card_data_for_post(mom_cards[3]))
+
+
+    setnames = set(["foo", "bar", "baz"])
+    print(format_setnames(*setnames))
