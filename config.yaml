@@ -3,6 +3,7 @@ urlsets: "https://api.scryfall.com/sets/"
 setsfile: "data/sets-to-watch.json"
 cardcountsfile: "data/set-card-counts.json"
 sleeptime: 0.2
-updateinterval: 18000
+updateinterval_min: 30
+updatespaminterval_s: 15
 charlimit: 2000
 verbose: true

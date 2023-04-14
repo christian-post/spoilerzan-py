@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-import json
+from datetime import datetime
 import yaml
 
 import discord
@@ -22,14 +22,11 @@ class Spoilerzan(commands.Bot):
             self.config = yaml.safe_load(file)
 
         self.active = True
+        self.last_updated = datetime.now()
 
 
     def run(self):
         super().run(self._token)
-
-
-    async def on_ready(self):
-        print(f"We have logged in as {self.user}")
 
 
 
