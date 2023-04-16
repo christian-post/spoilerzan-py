@@ -114,7 +114,7 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
             ).get("card_count", 0)
         
         if config["verbose"]:
-            print(f"Set \"{set_data.get('name')} ({set_})\", new card count: {new_count}, old card count: {old_count}.\n")
+            print(f"Set \"{set_data.get('name')} ({set_})\", new card count: {new_count}, old card count: {old_count}.")
 
         # new cards have been spoiled since last time
         if new_count > old_count:
