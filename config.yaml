@@ -1,4 +1,4 @@
-urlspoiledcards: "https://api.scryfall.com/cards/search?order=spoiled&unique=prints&q=e%3A"
+urlspoiledcards: "https://api.scryfall.com/cards/search?order=spoiled&q=e%3A"
 urlsets: "https://api.scryfall.com/sets/"
 setsfile: "data/sets-to-watch.json"
 cardcountsfile: "data/set-card-counts.json"

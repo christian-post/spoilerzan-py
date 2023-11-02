@@ -31,7 +31,7 @@ async def cmd_sets(bot: Bot, ctx: Context, *args: str):
             name: str = set_data.get('name')
             uri = f"{set_data.get('scryfall_uri')}?order=spoiled"
 
-        out_string += f"\n• {name}\n{uri}"
+        out_string += f"\n• {name} ({setcode.upper()})\n{uri}"
 
     message: Message = await ctx.channel.send(out_string)
     # remove URL embeds

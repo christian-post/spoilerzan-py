@@ -1,5 +1,8 @@
+import sys
 from datetime import datetime
 from dotenv import load_dotenv
+import logging
+
 from discord.ext import tasks
 from discord.ext.commands import Context, errors
 
@@ -15,10 +18,22 @@ from commands.update import cmd_update, update_helper
 if __name__ == "__main__":
     load_dotenv()
 
+    LOGFILE = "debug.log"
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S",
+        handlers=[
+            logging.FileHandler(LOGFILE),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
     bot = Spoilerzan()
 
     # --- configure commands and tasks --- #
 
+    # TODO why isnt this working?
     # @bot.command(name="help", description=descriptions.get("help"))
     # async def help_me(ctx: Context) -> None:
     #     helptext = ""
@@ -67,23 +82,23 @@ if __name__ == "__main__":
         """
         Periodically looks for new spoilers and posts them to Discord
         """
-        print(f"{datetime.now().strftime('%d.%m.%Y %H:%M:%S')} Looking for new spoilers...")
+        logging.info("Looking for new spoilers...")
         new_cards = await update_helper(bot, should_post=True)
-        print(f"{len(new_cards)} cards were spoiled and posted to the channel.\n")
+        logging.info(f"{len(new_cards)} cards were spoiled and posted to the channel.\n")
 
 
     @bot.event
     async def on_ready() -> None:
-        print(f"We have logged in as {bot.user}")
+        logging.info(f"We have logged in as {bot.user}")
 
         # start the periodic update
         update_loop.start()
 
 
     @bot.event
-    async def on_message_error(ctx, error):
+    async def on_command_error(ctx, error):
         if isinstance(error, errors.CommandNotFound):
-            await ctx.channel.send("Unbekannter Befehl.")
+            await ctx.channel.send(f"Unbekannter Befehl \"{ctx.invoked_with}\".")
             # await help_me(ctx)
 
 

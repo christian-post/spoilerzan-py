@@ -1,6 +1,7 @@
 import time
 import requests
 import json
+import logging
 from typing import Any
 
 
@@ -10,10 +11,10 @@ def load_sets(config: dict) -> list[str]:
         with open(config["setsfile"], "r") as file:
             return json.load(file)
     except json.JSONDecodeError:
-        print(f"The file {config['setsfile']} appears corrupted. Loading empty set list.")
+        logging.warning(f"The file {config['setsfile']} appears corrupted. Loading empty set list.")
         return []
     except FileNotFoundError as err:
-        print(err)
+        logging.error(err)
         return []
     
 
@@ -25,7 +26,7 @@ def load_card_counts(config: dict) -> dict[str: dict[str: int]]:
         with open(config["cardcountsfile"], "r") as file:
             return json.load(file)
     except FileNotFoundError as err:
-        print(err)
+        logging.error(err)
         return {}
 
 
@@ -40,7 +41,7 @@ def get_set_data(setcode: str, config: dict) -> dict:
     if res.status_code == 200:
         return json.loads(res.text)
     else:
-        print(f"The set \"{setcode}\" could not be accessed. Error code {res.status_code}.\n")
+        logging.warning(f"The set \"{setcode}\" could not be accessed. Error code {res.status_code}.\n")
         return {}
 
 
@@ -53,7 +54,7 @@ def get_spoiled_cards(set_data: dict, config: dict) -> list:
 
     url = config["urlspoiledcards"] + set_data.get("code", "")
     if config["verbose"]:
-        print(f"Looking for spoilers at {url}\n")
+        logging.info(f"Looking for spoilers at {url}\n")
     res = requests.get(url)
     if res.status_code == 200:
         card_data = json.loads(res.text)
@@ -64,7 +65,7 @@ def get_spoiled_cards(set_data: dict, config: dict) -> list:
         if card_data.get("has_more"):
             while True:
                 if config["verbose"]:
-                    print(f"More cards at {next_page}\n")
+                    logging.info(f"More cards at {next_page}\n")
                 time.sleep(config["sleeptime"])
 
                 res = requests.get(next_page)
@@ -77,7 +78,7 @@ def get_spoiled_cards(set_data: dict, config: dict) -> list:
                 next_page = more_card_data.get("next_page")
 
     else:
-        print(f"Error fetching cards for \"{set_data['code']}\" at {url}. Error code {res.status_code}.\n")
+        logging.warning(f"Error fetching cards for \"{set_data['code']}\" at {url}. Error code {res.status_code}.\n")
 
     return cards
 
@@ -94,7 +95,7 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
     card_counts: dict = load_card_counts(config)
 
     if not (sets and card_counts):
-        print("There is something wrong with the set data or card counts data.")
+        logging.error("There is something wrong with the set data or card counts data.")
         return []
     
     # Flag will be set to true if card counts changed
@@ -114,7 +115,7 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
             ).get("card_count", 0)
         
         if config["verbose"]:
-            print(f"Set \"{set_data.get('name')} ({set_})\", new card count: {new_count}, old card count: {old_count}.")
+            logging.info(f"Set \"{set_data.get('name')} ({set_})\", new card count: {new_count}, old card count: {old_count}.")
 
         # new cards have been spoiled since last time
         if new_count > old_count:
@@ -178,7 +179,7 @@ def format_setnames(*setnames: list[str]) -> str:
 async def post_cards(cardlist: list[dict], channel) -> None:
     for i, card in enumerate(cardlist):
         time.sleep(0.2)
-        print(i, card.get("name"))
+        logging.info(f"{i} {card.get('name')}")
         await channel.send(format_card_data_for_post(card))
 
 
@@ -211,4 +212,4 @@ if __name__ == "__main__":
 
 
     setnames = set(["foo", "bar", "baz"])
-    print(format_setnames(*setnames))
+    logging.info(format_setnames(*setnames))

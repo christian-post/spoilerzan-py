@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.getcwd())
 from datetime import datetime, timedelta
+import logging
 
 from src.utils import check_sets_for_spoilers, post_cards
 
@@ -12,7 +13,7 @@ async def update_helper(bot, should_post=True):
     if new_cards and should_post:
         channel = bot.get_channel(int(os.getenv("SPOILER_CHANNEL")))
         if not channel:
-            print(f"No channel was found with the ID {os.getenv('SPOILER_CHANNEL')}")
+            logging.warning(f"No channel was found with the ID {os.getenv('SPOILER_CHANNEL')}")
         else:
             await post_cards(new_cards, channel)
 

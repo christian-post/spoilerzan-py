@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.getcwd())
 import json
+import logging
 
 from src.utils import load_card_counts, load_sets, format_setnames
 
@@ -78,4 +79,4 @@ if __name__ == "__main__":
         config = yaml.safe_load(file)
 
     updated = remove_sets_from_files(["DMC", "NEC", "LTC"], config)
-    print(updated)
+    logging.info(updated)
