@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
 
     @bot.event
-    async def on_command_error(ctx, error):
+    async def on_command_error(ctx: Context, error) -> None:
         if isinstance(error, errors.CommandNotFound):
             await ctx.channel.send(f"Unbekannter Befehl \"{ctx.invoked_with}\".")
             # await help_me(ctx)

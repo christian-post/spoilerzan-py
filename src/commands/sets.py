@@ -8,7 +8,7 @@ from discord.ext.commands import Bot, Context
 from src.utils import load_sets, get_set_data, format_setnames
 
 
-async def cmd_sets(bot: Bot, ctx: Context, *args: str):
+async def cmd_sets(bot: Bot, ctx: Context, *args: str) -> None:
     if not bot.active:
         return
     

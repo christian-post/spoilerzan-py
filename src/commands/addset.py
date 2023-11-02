@@ -3,12 +3,14 @@ import os
 sys.path.append(os.getcwd())
 import json
 import logging
+from typing import Union
+from discord.ext.commands import Bot, Context
 
 from src.utils import load_card_counts, load_sets, format_setnames
 
 
 def add_sets_to_files(
-        setcodes: str | list[str], config: dict
+        setcodes: Union[str, list[str]], config: dict
     ) -> dict[str: list[str]]:
 
     sets_to_watch: list[str] = load_sets(config)
@@ -46,7 +48,7 @@ def add_sets_to_files(
     return sets_updated
 
 
-async def cmd_add_set(bot, ctx, *args):
+async def cmd_add_set(bot: Bot, ctx: Context, *args: str) -> None:
     if not bot.active:
         return
     

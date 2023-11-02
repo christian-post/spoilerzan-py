@@ -3,11 +3,12 @@ import os
 sys.path.append(os.getcwd())
 from datetime import datetime, timedelta
 import logging
+from discord.ext.commands import Bot, Context
 
 from src.utils import check_sets_for_spoilers, post_cards
 
 
-async def update_helper(bot, should_post=True):
+async def update_helper(bot: Bot, should_post=True) -> list[dict]:
     new_cards: list[dict] = check_sets_for_spoilers(bot.config)
 
     if new_cards and should_post:
@@ -20,7 +21,7 @@ async def update_helper(bot, should_post=True):
     return new_cards
 
 
-async def cmd_update(bot, ctx, *args):
+async def cmd_update(bot: Bot, ctx: Context, *args: str) -> None:
     interval = datetime.now() - bot.last_updated
     if interval < timedelta(seconds=bot.config["updatespaminterval_s"]):
         await ctx.channel.send("Die Datenbank wurde vor kurzem geupdated.")

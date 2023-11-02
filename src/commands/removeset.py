@@ -3,12 +3,14 @@ import os
 sys.path.append(os.getcwd())
 import json
 import logging
+from typing import Union
+from discord.ext.commands import Bot, Context
 
 from src.utils import load_card_counts, load_sets, format_setnames
 
 
 def remove_sets_from_files(
-        setcodes: str | list[str], config: dict
+        setcodes: Union[str, list[str]], config: dict
     ) -> dict[str: list[str]]:
     
     sets_to_watch: list[str] = load_sets(config)
@@ -55,7 +57,7 @@ def remove_sets_from_files(
 
 
 
-async def cmd_remove_set(bot, ctx, *args):
+async def cmd_remove_set(bot: Bot, ctx: Context, *args: str) -> None:
     if not bot.active:
         return
     
