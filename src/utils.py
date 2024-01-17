@@ -110,9 +110,15 @@ def check_sets_for_spoilers(config: dict) -> list[Any]:
 
         # check if the card count is the same as in the data
         new_count = set_data.get("card_count", 0)
+
+        if set_ not in card_counts:
+            card_counts.update({set_: {"card_count": 0}})
+
         old_count = card_counts.get(
             set_data.get("code"), {}
             ).get("card_count", 0)
+        
+        # TODO: double check by comparing the length of card data array with a saved version
         
         if config["verbose"]:
             logging.info(f"Set \"{set_data.get('name')} ({set_})\", new card count: {new_count}, old card count: {old_count}.")
